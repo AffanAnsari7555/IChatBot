@@ -4,9 +4,7 @@ import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-## Preload the dataset from the given file path
-def load_data(file_path):
-    return pd.read_csv(file_path)
+# Function to get response based on user input and similarity
 def get_response(user_prompt, data, vectorizer, temperature=0.5):
     # Vectorize the dataset prompts and user input
     X = vectorizer.transform(data['prompt'])
@@ -28,29 +26,31 @@ def get_response(user_prompt, data, vectorizer, temperature=0.5):
         random.shuffle(words)
         response = ' '.join(words)
     
-    # Return the response (this should be inside the function)
     return response
 
-
-## Streamlit App Configuration
+# Streamlit App Configuration
 st.set_page_config(page_title="Institute Chatbot", page_icon='🤖', layout='centered', initial_sidebar_state='collapsed')
 
 st.header("Institute Chatbot 🤖")
 
-## Specify the file path of your dataset
-file_path = 'C:/chatbot/expanded_faq_data.csv'  # Make sure to correct this file path
+# Allow the user to upload a CSV file
+uploaded_file = st.file_uploader("Choose a CSV file", type='csv')
 
-## Preload the dataset containing institute prompts and responses
-data = load_data(file_path)
+if uploaded_file is not None:
+    # Preload the dataset from the uploaded file
+    data = pd.read_csv(uploaded_file)
+    st.write("File uploaded successfully!")
 
-## Initialize the vectorizer
-vectorizer = TfidfVectorizer()
+    # Initialize the vectorizer
+    vectorizer = TfidfVectorizer()
 
-## Fit the vectorizer on the dataset prompts
-vectorizer.fit(data['prompt'])
+    # Fit the vectorizer on the dataset prompts
+    vectorizer.fit(data['prompt'])
 
-user_prompt = st.text_input("Ask a question about the institute")
+    user_prompt = st.text_input("Ask a question about the institute")
 
-if st.button("Get Response"):
-    response = get_response(user_prompt, data, vectorizer)
-    st.write(response)
+    if st.button("Get Response"):
+        response = get_response(user_prompt, data, vectorizer)
+        st.write(response)
+else:
+    st.write("Please upload a CSV file to proceed.")
