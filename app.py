@@ -34,18 +34,26 @@ st.set_page_config(page_title="Institute Chatbot", page_icon='🤖', layout='cen
 st.header("Institute Chatbot 🤖")
 
 # Load the dataset from the local CSV file
-file_path = 'https://github.com/AffanAnsari7555/IChatBot/blob/main/expanded_faq_data.csv'  # Make sure this file is in the same directory as your script
-data = pd.read_csv(file_path)
-st.write("Dataset loaded successfully!")
+file_path = 'expanded_faq_data.csv'  # Ensure this file is in the same directory as your script
 
-# Initialize the vectorizer
-vectorizer = TfidfVectorizer()
+try:
+    # Attempt to load the dataset with the correct settings
+    data = pd.read_csv(file_path)  # You can add delimiter or encoding parameters here if needed
+    st.write("Dataset loaded successfully!")
 
-# Fit the vectorizer on the dataset prompts
-vectorizer.fit(data['prompt'])
+    # Initialize the vectorizer
+    vectorizer = TfidfVectorizer()
 
-user_prompt = st.text_input("Ask a question about the institute")
+    # Fit the vectorizer on the dataset prompts
+    vectorizer.fit(data['prompt'])
 
-if st.button("Get Response"):
-    response = get_response(user_prompt, data, vectorizer)
-    st.write(response)
+    user_prompt = st.text_input("Ask a question about the institute")
+
+    if st.button("Get Response"):
+        response = get_response(user_prompt, data, vectorizer)
+        st.write(response)
+
+except pd.errors.ParserError as e:
+    st.error("Error reading the CSV file: {}".format(e))
+except Exception as e:
+    st.error("An unexpected error occurred: {}".format(e))
